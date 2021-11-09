@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import ColorList from "./ColorList";
+import Welcome from "./Welcome";
+import NewColor from "./NewColor";
+import ColorDisplay from "./ColorDisplay";
+import { getStoredColors, setStoredColors } from "./ColorStorage";
+import "./App.css";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [colors, updateColors] = useState([]);
+	const addColor = (newColor) => {
+		updateColors((oldColors) => {
+			return [...oldColors, newColor];
+		});
+	};
+
+	useEffect(() => {
+		let storedColors = getStoredColors();
+		if (storedColors) updateColors(storedColors);
+	}, []);
+
+	useEffect(() => {
+		setStoredColors(colors);
+	}, [colors]);
+
+	// const history = useHistory();
+	return (
+		<div className="App">
+			<BrowserRouter>
+				<Switch>
+					<Route exact path="/colors">
+						<Welcome />
+						<ColorList colors={colors} />
+					</Route>
+
+					<Route exact path="/colors/new">
+						<NewColor addColor={addColor} />
+					</Route>
+					<Route exact path="/colors/:color">
+						<ColorDisplay colors={colors} />
+					</Route>
+					<Redirect to="/colors" />
+				</Switch>
+			</BrowserRouter>
+		</div>
+	);
 }
 
 export default App;
